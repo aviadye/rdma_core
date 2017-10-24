@@ -2550,6 +2550,15 @@ int mlx5_modify_cq(struct ibv_cq *cq, struct ibv_modify_cq_attr *attr)
 	return ibv_cmd_modify_cq(cq, attr, &cmd, sizeof(cmd));
 }
 
+enum mlx5_ib_create_flow_action_attrs {
+	MLX5_IB_CREATE_FLOW_ACTION_FLAGS		= (1U << 12) | (1 << 0),
+};
+
+enum mlx5_ib_flow_action_flags {
+	MLX5_IB_FLOW_ACTION_FLAGS_REQUIRE_METADATA	= 1 << 0,
+	MLX5_IB_FLOW_ACTION_FLAGS_RESERVED		= 1 << 1,
+};
+
 struct ibv_flow_action *mlx5_create_flow_action_esp(struct ibv_context *ctx,
 						    const struct ibv_flow_action_esp *attr)
 {
@@ -2565,6 +2574,33 @@ struct ibv_flow_action *mlx5_create_flow_action_esp(struct ibv_context *ctx,
 	}
 
 	ret = ibv_cmd_create_flow_action_esp(ctx, attr, action, cmdb);
+	if (ret) {
+		errno = ret;
+		free(action);
+		return NULL;
+	}
+
+	return action;
+}
+
+struct ibv_flow_action *mlx5dv_create_flow_action_esp(struct ibv_context *ctx,
+						      const struct ibv_flow_action_esp *esp,
+						      struct mlx5dv_flow_action_esp *mlx5_attr)
+{
+	struct ibv_flow_action *action;
+	DECLARE_COMMAND_BUFFER_DRV(cmdb, UVERBS_OBJECT_FLOW_ACTION,
+				   UVERBS_FLOW_ACTION_ESP_CREATE, 1);
+	__u64 flags = MLX5_IB_FLOW_ACTION_FLAGS_REQUIRE_METADATA;
+	int ret;
+
+	action = calloc(1, sizeof(*action));
+	if (!action) {
+		errno = ENOMEM;
+		return NULL;
+	}
+
+	fill_attr_uint64(cmdb, MLX5_IB_CREATE_FLOW_ACTION_FLAGS, flags);
+	ret = ibv_cmd_create_flow_action_esp(ctx, esp, action, cmdb);
 	if (ret) {
 		errno = ret;
 		free(action);

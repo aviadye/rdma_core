@@ -16,6 +16,7 @@ MLX5_1.2 {
 	global:
 		mlx5dv_init_obj;
 		mlx5dv_set_context_attr;
+		mlx5dv_create_flow_action_esp;
 } MLX5_1.1;
 
 MLX5_1.3 {
