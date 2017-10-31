@@ -1002,6 +1002,8 @@ static int mlx5_init_context(struct verbs_device *vdev,
 		mlx5_map_internal_clock(mdev, ctx);
 	}
 
+	context->flow_action_flags = resp.flow_action_flags;
+
 	mlx5_read_env(&vdev->device, context);
 
 	mlx5_spinlock_init(&context->hugetlb_lock);
