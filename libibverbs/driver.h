@@ -405,4 +405,5 @@ static inline bool check_comp_mask(uint64_t input, uint64_t supported)
 
 int ibv_query_gid_type(struct ibv_context *context, uint8_t port_num,
 		       unsigned int index, enum ibv_gid_type *type);
+
 #endif /* INFINIBAND_DRIVER_H */

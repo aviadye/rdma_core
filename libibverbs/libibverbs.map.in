@@ -164,4 +164,5 @@ IBVERBS_PRIVATE_@IBVERBS_PABI_VERSION@ {
 		verbs_register_driver_@IBVERBS_PABI_VERSION@;
 		verbs_init_cq;
 		ibv_cmd_modify_cq;
+		ibv_cmd_get_num_params;
 };
