@@ -158,6 +158,16 @@ void verbs_init_cq(struct ibv_cq *cq, struct ibv_context *context,
 	pthread_cond_init(&cq->cond, NULL);
 }
 
+static inline int __lib_ibv_destroy_flow_action(struct ibv_flow_action *action)
+{
+	int ret = ibv_cmd_destroy_flow_action(action);
+
+	if (!ret)
+		free(action);
+
+	return ret;
+}
+
 static struct ibv_cq_ex *
 __lib_ibv_create_cq_ex(struct ibv_context *context,
 		       struct ibv_cq_init_attr_ex *cq_attr)
@@ -227,6 +237,7 @@ LATEST_SYMVER_FUNC(ibv_open_device, 1_1, "IBVERBS_1.1",
 		context_ex->priv = priv;
 		context_ex->context.abi_compat  = __VERBS_ABI_IS_EXTENDED;
 		context_ex->sz = sizeof(*context_ex);
+		context_ex->destroy_flow_action = __lib_ibv_destroy_flow_action;
 
 		context = &context_ex->context;
 		ret = verbs_device->ops->init_context(verbs_device, context, cmd_fd);

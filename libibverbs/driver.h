@@ -41,6 +41,7 @@
 #include <ccan/list.h>
 #include <config.h>
 #include <stdbool.h>
+#include <infiniband/verbs_ioctl.h>
 
 struct verbs_device;
 
@@ -216,6 +217,13 @@ int ibv_cmd_query_device(struct ibv_context *context,
 			 struct ibv_device_attr *device_attr,
 			 uint64_t *raw_fw_ver,
 			 struct ibv_query_device *cmd, size_t cmd_size);
+int ibv_cmd_create_flow_action_esp(struct ibv_context *ctx,
+				   const struct ibv_flow_action_esp *attr,
+				   struct ibv_flow_action *flow_action,
+				   struct ibv_command_buffer *cmd);
+int ibv_cmd_modify_flow_action_esp(struct ibv_flow_action *flow_action,
+				   const struct ibv_flow_action_esp *attr,
+				   struct ibv_command_buffer *cmd);
 int ibv_cmd_query_device_ex(struct ibv_context *context,
 			    const struct ibv_query_device_ex_input *input,
 			    struct ibv_device_attr_ex *attr, size_t attr_size,
@@ -363,6 +371,7 @@ int ibv_cmd_create_wq(struct ibv_context *context,
 		      size_t resp_core_size,
 		      size_t resp_size);
 
+int ibv_cmd_destroy_flow_action(struct ibv_flow_action *action);
 int ibv_cmd_modify_wq(struct ibv_wq *wq, struct ibv_wq_attr *attr,
 		      struct ibv_modify_wq *cmd, size_t cmd_core_size,
 		      size_t cmd_size);

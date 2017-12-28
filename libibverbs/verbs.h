@@ -1493,6 +1493,73 @@ struct ibv_flow {
 	uint32_t	   handle;
 };
 
+enum ibv_flow_action_type {
+	IBV_FLOW_ACTION_UNSPECIFIED,
+	IBV_FLOW_ACTION_ESP = 1,
+};
+
+struct ibv_flow_action {
+	struct ibv_context *context;
+	uint32_t	handle;
+	enum ibv_flow_action_type type;
+};
+
+enum ibv_flow_action_esp_keymat {
+	IBV_ACTION_ESP_KEYMAT_AES_GCM,
+};
+
+struct ibv_flow_action_esp_aes_keymat_aes_gcm {
+	uint64_t   iv;
+	uint32_t   iv_algo; /* Use enum ib_uverbs_flow_action_esp_aes_gcm_keymat_iv_algo */
+
+	uint32_t   salt;
+	uint32_t   icv_len;
+
+	uint32_t   key_len;
+	uint32_t   aes_key[256 / 32];
+};
+
+enum ibv_flow_action_esp_replay {
+	IBV_FLOW_ACTION_ESP_REPLAY_BMP	 = 1UL << 0,
+};
+
+struct ibv_flow_action_esp_replay_bmp {
+	uint32_t   size;
+};
+
+struct ibv_flow_action_esp_encap {
+	void		*mask;       /* pointer to struct ibv_flow_xxxx_filter */
+	void		*val;        /* pointer to struct ibv_flow_xxxx_filter */
+	struct ibv_flow_action_esp_encap   *next_ptr;
+	uint16_t	len;            /* Len of mask and pointer (separately) */
+	uint16_t	type;           /* Use flow_spec enum */
+};
+
+struct ibv_flow_action_esp_attr {
+	uint32_t   spi;
+	uint32_t   seq;
+	uint32_t   tfc_pad;
+	uint32_t   flags;
+	uint64_t   hard_limit_pkts;
+};
+
+struct ibv_flow_action_esp {
+	uint32_t		comp_mask; /* Use enum ib_uverbs_flow_action_esp_attrs */
+	uint32_t		reserverd1;
+	uint32_t		esn;
+	struct ibv_flow_action_esp_attr *esp_attr;
+
+	uint16_t		keymat_proto; /* Use enum ibv_flow_action_esp_keymat */
+	uint16_t		keymat_len;
+	void			*keymat_ptr;
+
+	uint16_t                replay_proto; /* Use enum ibv_flow_action_esp_replay */
+	uint16_t                replay_len;
+	void                    *replay_ptr;
+
+	struct ibv_flow_action_esp_encap *esp_encap;
+};
+
 struct ibv_device;
 struct ibv_context;
 
@@ -1636,6 +1703,11 @@ struct ibv_values_ex {
 
 struct verbs_context {
 	/*  "grows up" - new fields go here */
+	int (*modify_flow_action_esp)(struct ibv_flow_action *action,
+				      const struct ibv_flow_action_esp *attr);
+	int (*destroy_flow_action)(struct ibv_flow_action *action);
+	struct ibv_flow_action *(*create_flow_action_esp)(struct ibv_context *context,
+							  const struct ibv_flow_action_esp *attr);
 	uint32_t driver_id;
 	int (*modify_cq)(struct ibv_cq *cq, struct ibv_modify_cq_attr *attr);
 	int (*post_srq_ops)(struct ibv_srq *srq,
@@ -1823,6 +1895,47 @@ static inline int ibv_destroy_flow(struct ibv_flow *flow_id)
 	if (!vctx)
 		return -ENOSYS;
 	return vctx->ibv_destroy_flow(flow_id);
+}
+
+static inline struct ibv_flow_action *
+ibv_create_flow_action_esp(struct ibv_context *ctx,
+			   const struct ibv_flow_action_esp *esp)
+{
+	struct verbs_context *vctx = verbs_get_ctx_op(ctx,
+						      create_flow_action_esp);
+
+	if (!vctx || !vctx->create_flow_action_esp) {
+		errno = ENOSYS;
+		return NULL;
+	}
+
+	return vctx->create_flow_action_esp(ctx, esp);
+}
+
+static inline int
+ibv_modify_flow_action_esp(struct ibv_flow_action *action,
+			   const struct ibv_flow_action_esp *esp)
+{
+	struct verbs_context *vctx = verbs_get_ctx_op(action->context,
+						      modify_flow_action_esp);
+
+	if (!vctx) {
+		errno = ENOSYS;
+		return errno;
+	}
+
+	return vctx->modify_flow_action_esp(action, esp);
+}
+
+static inline int ibv_destroy_flow_action(struct ibv_flow_action *action)
+{
+	struct verbs_context *vctx = verbs_get_ctx_op(action->context,
+						      destroy_flow_action);
+
+	if (!vctx || !vctx->destroy_flow_action)
+		return -ENOSYS;
+
+	return vctx->destroy_flow_action(action);
 }
 
 /**
