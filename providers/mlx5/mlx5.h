@@ -749,6 +749,10 @@ struct ibv_flow *mlx5_create_flow(struct ibv_qp *qp, struct ibv_flow_attr *flow_
 int mlx5_destroy_flow(struct ibv_flow *flow_id);
 struct ibv_srq *mlx5_create_srq_ex(struct ibv_context *context,
 				   struct ibv_srq_init_attr_ex *attr);
+struct ibv_flow_action *mlx5_create_flow_action_esp(struct ibv_context *ctx,
+						    const struct ibv_flow_action_esp *attr);
+int mlx5_modify_flow_action_esp(struct ibv_flow_action *action,
+				const struct ibv_flow_action_esp *attr);
 int mlx5_post_srq_ops(struct ibv_srq *srq,
 		      struct ibv_ops_wr *wr,
 		      struct ibv_ops_wr **bad_wr);

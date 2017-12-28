@@ -2549,3 +2549,36 @@ int mlx5_modify_cq(struct ibv_cq *cq, struct ibv_modify_cq_attr *attr)
 
 	return ibv_cmd_modify_cq(cq, attr, &cmd, sizeof(cmd));
 }
+
+struct ibv_flow_action *mlx5_create_flow_action_esp(struct ibv_context *ctx,
+						    const struct ibv_flow_action_esp *attr)
+{
+	struct ibv_flow_action *action;
+	DECLARE_COMMAND_BUFFER_DRV(cmdb, UVERBS_OBJECT_FLOW_ACTION,
+				   UVERBS_FLOW_ACTION_ESP_CREATE, 0);
+	int ret;
+
+	action = calloc(1, sizeof(*action));
+	if (!action) {
+		errno = ENOMEM;
+		return NULL;
+	}
+
+	ret = ibv_cmd_create_flow_action_esp(ctx, attr, action, cmdb);
+	if (ret) {
+		errno = ret;
+		free(action);
+		return NULL;
+	}
+
+	return action;
+}
+
+int mlx5_modify_flow_action_esp(struct ibv_flow_action *action,
+				const struct ibv_flow_action_esp *attr)
+{
+	DECLARE_COMMAND_BUFFER_DRV(cmdb, UVERBS_OBJECT_FLOW_ACTION,
+				   UVERBS_FLOW_ACTION_ESP_MODIFY, 0);
+
+	return ibv_cmd_modify_flow_action_esp(action, attr, cmdb);
+}

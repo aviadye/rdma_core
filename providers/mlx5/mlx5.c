@@ -1026,6 +1026,9 @@ static int mlx5_init_context(struct verbs_device *vdev,
 	v_ctx->destroy_rwq_ind_table = mlx5_destroy_rwq_ind_table;
 	v_ctx->post_srq_ops = mlx5_post_srq_ops;
 	v_ctx->modify_cq = mlx5_modify_cq;
+	/* We use the default destroy_flow_action, no need to fill it */
+	v_ctx->create_flow_action_esp = mlx5_create_flow_action_esp;
+	v_ctx->modify_flow_action_esp = mlx5_modify_flow_action_esp;
 
 	v_ctx->driver_id = RDMA_DRIVER_MLX5;
 
