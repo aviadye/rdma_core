@@ -1027,6 +1027,8 @@ static int mlx5_init_context(struct verbs_device *vdev,
 	v_ctx->post_srq_ops = mlx5_post_srq_ops;
 	v_ctx->modify_cq = mlx5_modify_cq;
 
+	v_ctx->driver_id = RDMA_DRIVER_MLX5;
+
 	memset(&device_attr, 0, sizeof(device_attr));
 	if (!mlx5_query_device_ex(ctx, NULL, &device_attr,
 				  sizeof(struct ibv_device_attr_ex))) {
