@@ -111,8 +111,9 @@ static struct ib_uverbs_attr *copy_flow_action_esp(const struct ibv_flow_action_
 	struct ib_uverbs_attr *handle;
 
 	handle = fill_attr_obj(cmd, FLOW_ACTION_ESP_HANDLE, handle_idx);
-	fill_attr_in(cmd, FLOW_ACTION_ESP_ESN,
-		     sizeof(esp->esn), (void *)&esp->esn);
+	if (esp->comp_mask & IBV_FLOW_ACTION_ESP_MASK_ESN)
+		fill_attr_in(cmd, FLOW_ACTION_ESP_ESN,
+				sizeof(esp->esn), (void *)&esp->esn);
 
 	if (esp->keymat_ptr)
 		fill_attr_in_enum(cmd, FLOW_ACTION_ESP_KEYMAT,

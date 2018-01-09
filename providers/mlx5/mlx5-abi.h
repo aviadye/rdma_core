@@ -80,13 +80,6 @@ enum mlx5_ib_alloc_ucontext_resp_mask {
 	MLX5_IB_ALLOC_UCONTEXT_RESP_MASK_CORE_CLOCK_OFFSET = 1UL << 0,
 };
 
-enum {
-	MLX5_IB_ALLOC_UCONTEXT_FLOW_ACTION_FLAGS_ESP_AES_GCM_REQ_METADATA = 1U << 0,
-	MLX5_IB_ALLOC_UCONTEXT_FLOW_ACTION_FLAGS_ESP_AES_GCM_RX = 1U << 1,
-	MLX5_IB_ALLOC_UCONTEXT_FLOW_ACTION_FLAGS_ESP_AES_GCM_TX = 1U << 2,
-	MLX5_IB_ALLOC_UCONTEXT_FLOW_ACTION_FLAGS_ESP_AES_GCM_SPI_RSS_ONLY = 1U << 3,
-};
-
 struct mlx5_alloc_ucontext_resp {
 	struct ibv_get_context_resp	ibv_resp;
 	__u32				qp_tab_size;

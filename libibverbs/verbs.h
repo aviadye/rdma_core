@@ -1569,8 +1569,12 @@ struct ibv_flow_action_esp_attr {
 	uint64_t   hard_limit_pkts;
 };
 
+enum ibv_flow_action_esp_mask {
+	IBV_FLOW_ACTION_ESP_MASK_ESN 	= 1UL << 0,
+};
+
 struct ibv_flow_action_esp {
-	uint32_t		comp_mask; /* Use enum ib_uverbs_flow_action_esp_attrs */
+	uint32_t		comp_mask; /* Use enum ibv_flow_action_esp_mask */
 	uint32_t		reserverd1;
 	uint32_t		esn;
 	struct ibv_flow_action_esp_attr *esp_attr;
